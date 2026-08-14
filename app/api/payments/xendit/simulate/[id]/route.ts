@@ -9,18 +9,18 @@ const simulatePaymentSchema = z.object({
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } },
-  searchParams: { [key: string]: string | string[] | undefined } 
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Ensure params.id exists
-    if (!params?.id) {
+    if (!id) {
       return NextResponse.json(
         { code: 400, status: "QR ID is required" },
         { status: 400 }
       );
     }
-    const qrId = params.id;
+    const qrId = id;
 
     // Handle empty body by using default values
     let body = { amount: 5000 };
