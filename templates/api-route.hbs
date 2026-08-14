@@ -1,0 +1,65 @@
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { createApiResponse, handleApiError, ApiError } from '@/lib/api-response';
+import { API_ERRORS } from '@/lib/constants/errors';
+
+export async function GET() {
+  try {
+    const {{camelCase name}} = await prisma.{{camelCase (singular name)}}.findMany({
+      select: {
+        id: true,
+        {{#each (parseFields fields)}}
+        {{name}}: true,
+        {{/each}}
+      },
+      orderBy: {
+        id: 'desc'
+      }
+    });
+    return NextResponse.json(createApiResponse({{camelCase name}}));
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const data = await request.json();
+
+    // Check if record already exists
+    const existing{{pascalCase (singular name)}} = await prisma.{{camelCase (singular name)}}.findUnique({
+      where: { 
+        {{#if (hasField fields 'email')}}
+        email: data.email
+        {{else}}
+        id: data.id
+        {{/if}}
+      }
+    });
+
+    if (existing{{pascalCase (singular name)}}) {
+      throw new ApiError(
+        API_ERRORS.{{constantCase (singular name)}}.ALREADY_EXISTS,
+        '{{startCase (singular name)}} already exists'
+      );
+    }
+
+    const {{camelCase (singular name)}} = await prisma.{{camelCase (singular name)}}.create({
+      data: {
+        {{#each (parseFields fields)}}
+        {{name}}: data.{{name}},
+        {{/each}}
+      },
+      select: {
+        id: true,
+        {{#each (parseFields fields)}}
+        {{name}}: true,
+        {{/each}}
+      }
+    });
+
+    return NextResponse.json(createApiResponse({{camelCase (singular name)}}));
+  } catch (error) {
+    return handleApiError(error);
+  }
+}

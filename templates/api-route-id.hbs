@@ -1,0 +1,66 @@
+import { NextResponse } from 'next/server';
+import prisma from '@/lib/prisma';
+import { createApiResponse, handleApiError, ApiError } from '@/lib/api-response';
+import { API_ERRORS } from '@/lib/constants/errors';
+
+type Params = Promise<{ id: string }>
+
+export async function GET(request: Request, { params }: { params: Params }) {
+  try {
+    const {{camelCase (singular name)}} = await prisma.{{camelCase (singular name)}}.findUnique({
+      where: { id: Number((await params).id) },
+      select: {
+        id: true,
+        {{#each (parseFields fields)}}
+        {{name}}: true,
+        {{/each}}
+      }
+    });
+
+    if (!{{camelCase (singular name)}}) {
+      throw new ApiError(
+        API_ERRORS.{{constantCase (singular name)}}.NOT_FOUND,
+        '{{startCase (singular name)}} not found'
+      );
+    }
+
+    return NextResponse.json(createApiResponse({{camelCase (singular name)}}));
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+export async function PUT(request: Request, { params }: { params: Params }) {
+  try {
+    const data = await request.json();
+    const {{camelCase (singular name)}} = await prisma.{{camelCase (singular name)}}.update({
+      where: { id: Number((await params).id) },
+      data: {
+        {{#each (parseFields fields)}}
+        {{name}}: data.{{name}},
+        {{/each}}
+      },
+      select: {
+        id: true,
+        {{#each (parseFields fields)}}
+        {{name}}: true,
+        {{/each}}
+      }
+    });
+
+    return NextResponse.json(createApiResponse({{camelCase (singular name)}}));
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+export async function DELETE(request: Request, { params }: { params: Params }) {
+  try {
+    await prisma.{{camelCase (singular name)}}.delete({
+      where: { id: Number((await params).id) },
+    });
+    return NextResponse.json(createApiResponse({ message: '{{startCase (singular name)}} deleted successfully' }));
+  } catch (error) {
+    return handleApiError(error);
+  }
+}

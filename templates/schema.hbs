@@ -1,0 +1,24 @@
+import { z } from "zod"
+
+export const create{{pascalCase name}}Schema = z.object({
+  {{#each fields}}
+  {{name}}: z.{{type}}(){{#if required}}
+    .min(1, "{{pascalCase name}} is required"){{/if}}{{#if isEmail}}
+    .email("Invalid email address"){{/if}}{{#if minLength}}
+    .min({{minLength}}, "{{pascalCase name}} must be at least {{minLength}} characters"){{/if}}{{#if isEnum}}
+    .refine((val) => !!val, {
+      message: "{{pascalCase name}} is required"
+    }){{/if}},
+  {{/each}}
+})
+
+export const update{{pascalCase name}}Schema = z.object({
+  {{#each fields}}
+  {{name}}: z.{{type}}(){{#if isEmail}}
+    .email("Invalid email address"){{/if}}{{#if minLength}}
+    .min({{minLength}}, "{{pascalCase name}} must be at least {{minLength}} characters"){{/if}}.optional(),
+  {{/each}}
+})
+
+export type ICreate{{pascalCase name}} = z.infer<typeof create{{pascalCase name}}Schema>
+export type IUpdate{{pascalCase name}} = z.infer<typeof update{{pascalCase name}}Schema>

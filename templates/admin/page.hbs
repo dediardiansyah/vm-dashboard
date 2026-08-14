@@ -1,0 +1,146 @@
+"use client"
+
+import { useState } from "react"
+import { use{{pascalCase (singular name)}}s } from "@/hooks/use-{{name}}"
+import { columns } from "./columns"
+import { DataTable } from "@/components/data-table/data-table"
+import { Button } from "@/components/ui/button"
+import { Plus } from "lucide-react"
+import { Add{{pascalCase (singular name)}}Dialog } from "./add-{{singular name}}-dialog"
+import { Edit{{pascalCase (singular name)}}Dialog } from "./edit-{{singular name}}-dialog"
+import { DeleteConfirmationDialog } from "@/components/delete-confirmation-dialog"
+import { StateWrapper } from "@/components/state-wrapper"
+import { useToastHandler } from "@/app/_hooks/ui/use-toast-handler"
+import { ICreate{{pascalCase (singular name)}}, IUpdate{{pascalCase (singular name)}} } from "@/schemas/{{singular name}}Schema"
+import { I{{pascalCase (singular name)}} } from "@/types/{{singular name}}"
+
+export default function {{pascalCase name}}Page() {
+  const { {{name}}, isLoading, error, create{{pascalCase (singular name)}}, update{{pascalCase (singular name)}}, delete{{pascalCase (singular name)}} } = use{{pascalCase (singular name)}}s()
+  const { showSuccessToast, showErrorToast } = useToastHandler()
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [selected{{pascalCase (singular name)}}, setSelected{{pascalCase (singular name)}}] = useState<I{{pascalCase (singular name)}} | null>(null)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [{{singular name}}ToDelete, set{{pascalCase (singular name)}}ToDelete] = useState<I{{pascalCase (singular name)}} | null>(null)
+
+  const handleAdd{{pascalCase (singular name)}} = async (formData: ICreate{{pascalCase (singular name)}}) => {
+    try {
+      const success = await create{{pascalCase (singular name)}}(formData)
+      if (success) {
+        setIsAddDialogOpen(false)
+        showSuccessToast(
+          "{{startCase (singular name)}} created",
+          "The {{singular name}} has been successfully created.",
+          { action: { label: "View {{name}}", altText: "View {{name}}" } }
+        )
+      }
+    } catch (error) {
+      console.error(error)
+      showErrorToast(
+        "Error",
+        "There was a problem creating the {{singular name}}.",
+        { action: { label: "Try again", altText: "Try again" } }
+      )
+    }
+  }
+
+  const handleEdit{{pascalCase (singular name)}} = async (id: number, data: IUpdate{{pascalCase (singular name)}}) => {
+    try {
+      const success = await update{{pascalCase (singular name)}}(id, data)
+      if (success) {
+        setIsEditDialogOpen(false)
+        setSelected{{pascalCase (singular name)}}(null)
+        showSuccessToast(
+          "{{startCase (singular name)}} updated",
+          "The {{singular name}} has been successfully updated.",
+          { action: { label: "View {{name}}", altText: "View {{name}}" } }
+        )
+      }
+    } catch (error) {
+      showErrorToast(
+        "Error",
+        "There was a problem updating the {{singular name}}.",
+        { action: { label: "Try again", altText: "Try again" } }
+      )
+    }
+  }
+
+  const handleDelete{{pascalCase (singular name)}} = async (id: number) => {
+    try {
+      const success = await delete{{pascalCase (singular name)}}(id)
+      if (success) {
+        setIsDeleteDialogOpen(false)
+        set{{pascalCase (singular name)}}ToDelete(null)
+        showSuccessToast(
+          "{{startCase (singular name)}} deleted",
+          "The {{singular name}} has been successfully deleted.",
+          { action: { label: "View {{name}}", altText: "View {{name}}" } }
+        )
+      }
+    } catch (error) {
+      showErrorToast(
+        "Error",
+        "There was a problem deleting the {{singular name}}.",
+        { action: { label: "Try again", altText: "Try again" } }
+      )
+    }
+  }
+
+  const handleRowAction = async (action: string, {{singular name}}: any) => {
+    switch (action) {
+      case 'edit':
+        setSelected{{pascalCase (singular name)}}({{singular name}})
+        setIsEditDialogOpen(true)
+        break
+      case 'delete':
+        set{{pascalCase (singular name)}}ToDelete({{singular name}})
+        setIsDeleteDialogOpen(true)
+        break
+      default:
+        break
+    }
+  }
+
+  return (
+    <StateWrapper isLoading={isLoading} error={error}>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">{{startCase name}} Management</h1>
+          <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add {{startCase (singular name)}}
+          </Button>
+        </div>
+
+        <DataTable
+          columns={columns}
+          data={{"{{"}} {{name}} {{"}}"}}
+          filterColumn="{{#with (parseFields fields)}}{{#if (hasField ../fields 'name')}}name{{else}}{{#if (hasField ../fields 'title')}}title{{else}}{{first.name}}{{/if}}{{/if}}{{/with}}"
+          meta={{"{{"}}
+            onRowAction: handleRowAction
+          {{"}}"}}
+        />
+
+        <Add{{pascalCase (singular name)}}Dialog
+          open={isAddDialogOpen}
+          onOpenChange={setIsAddDialogOpen}
+          onSubmit={handleAdd{{pascalCase (singular name)}}}
+        />
+
+        <Edit{{pascalCase (singular name)}}Dialog
+          {{singular name}}={selected{{pascalCase (singular name)}}}
+          open={isEditDialogOpen}
+          onOpenChange={setIsEditDialogOpen}
+          onSubmit={handleEdit{{pascalCase (singular name)}}}
+        />
+
+        <DeleteConfirmationDialog
+          open={{"{{"}}isDeleteDialogOpen{{"}}"}}
+          onOpenChange={{"{{"}}setIsDeleteDialogOpen{{"}}"}}
+          onConfirm={{"{{"}}() => {{singular name}}ToDelete && handleDelete{{pascalCase (singular name)}}({{singular name}}ToDelete.id){{"}}"}}
+          title="Delete {{startCase (singular name)}}"
+          itemName={{"{{"}}{{singular name}}ToDelete?.name || 'this {{singular name}}'{{"}}"}}
+        />
+      </div>
+    </StateWrapper>
+  )
+}

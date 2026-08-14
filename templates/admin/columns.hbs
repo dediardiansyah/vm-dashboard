@@ -1,0 +1,60 @@
+"use client"
+
+import { ColumnDef } from "@tanstack/react-table"
+import { ArrowUpDown, Pencil, Trash2 } from "lucide-react"
+import { TableBadge } from "@/components/badge"
+import { createActionColumn } from "@/components/action-column"
+import { I{{pascalCase (singular name)}} } from "@/types/{{singular name}}"
+import { Button } from "@/components/ui/button"
+
+export const columns: ColumnDef<I{{pascalCase (singular name)}}>[] = [
+  {
+    id: "select",
+    header: "#",
+    cell: ({ row }) => (
+      <div className="text-center text-sm text-muted-foreground w-4">
+        {row.index + 1}
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {{#each (parseFields fields)}}
+  {
+    accessorKey: "{{name}}",
+    header: {{#if @first}}({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="-ml-4"
+        >
+          {{startCase name}}
+          <ArrowUpDown className="ml-2 h-3 w-3" />
+        </Button>
+      )
+    }{{else}}"{{startCase name}}"{{/if}},
+    {{#if (eq type "boolean")}}
+    cell: ({ row }) => (
+      <TableBadge
+        variant={row.getValue("{{name}}") ? "success" : "danger"}
+        label={row.getValue("{{name}}") ? "Yes" : "No"}
+      />
+    ),
+    {{/if}}
+  },
+  {{/each}}
+  createActionColumn<I{{pascalCase (singular name)}}>(({{singular name}}, table) => [
+    {
+      label: "Edit",
+      icon: Pencil,
+      onClick: () => table.options.meta?.onRowAction?.("edit", {{singular name}}),
+    },
+    {
+      label: "Delete",
+      icon: Trash2,
+      onClick: () => table.options.meta?.onRowAction?.("delete", {{singular name}}),
+      isDanger: true,
+    },
+  ]),
+]

@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "MachineParfume" ADD COLUMN     "sprayCount" INTEGER NOT NULL DEFAULT 50,
+ADD COLUMN     "sprayLimit" INTEGER NOT NULL DEFAULT 50;
